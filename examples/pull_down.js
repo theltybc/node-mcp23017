@@ -23,16 +23,17 @@ mcp.pinMode(13, mcp.INPUT_PULLUP);
 mcp.pinMode(14, mcp.INPUT_PULLUP);
 mcp.pinMode(15, mcp.INPUT); // this one should float from time to time
 
-setInterval(function(){
+setInterval(function () {
 
-var test = function(i){
-        return function(err, value){
-            if(value == false){
-                console.log("Pull down on pin " + i, value);
-            }
-        }
-}
+  var test = function (i) {
+    return function (err, value) {
+      if (value == false) {
+        console.log("Pull down on pin " + i, value);
+      }
+    }
+  };
 
-for (var i = 8; i < 16; i++) {
-  mcp.digitalRead(i, test(i));
-}
+  for (var i = 8; i < 16; i++) {
+    mcp.digitalRead(i, test(i));
+  }
+});

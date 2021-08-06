@@ -1,6 +1,6 @@
-var MCP23017 = require('node-mcp23017');
+const MCP23017 = require('node-mcp23017');
 
-var mcp = new MCP23017({
+const mcp = new MCP23017({
   address: 0x20, //all address pins pulled low
   device: '/dev/i2c-1', // Model B
   debug: false
@@ -13,7 +13,7 @@ var pin = 0;
 var max = 16;
 var state = false;
 
-var blink = function() {
+var blink = function () {
   if (pin >= max) {
     pin = 0; //reset the pin counter if we reach the end
   }
