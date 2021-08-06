@@ -1,36 +1,79 @@
 const MCP23017 = require('node-mcp23017');
+const INTERVAL = 100;
 
-const mcp = new MCP23017({
-  address: 0x20, //all address pins pulled low
-  device: '/dev/i2c-1', // Model B
-  debug: false
-});
+let PIN = 0;
+let val = true;
+let address = 0x21;
 
-/*
-  This function blinks 16 LED, each hooked up to an port of the MCP23017
-*/
-var pin = 0;
-var max = 16;
-var state = false;
+let mcp = null;
 
-var blink = function () {
-  if (pin >= max) {
-    pin = 0; //reset the pin counter if we reach the end
+(async function () {
+  open();
+  await setMode();
+  while (1) {
+    await blink();
+    val = !val;
   }
+})();
 
-  if (state) {
-    mcp.digitalWrite(pin, mcp.LOW); //turn off the current LED
-    pin++; //increase counter
-  } else {
-    mcp.digitalWrite(pin, mcp.HIGH); //turn on the current LED
-    console.log('blinking pin', pin);
+function open() {
+  // if (mcp) {
+  //   mcp.wire.closeSync();
+  // }
+  mcp = null;
+  while (!mcp) {
+    try {
+      mcp = new MCP23017({
+        address: address,
+        device: 0,
+        debug: true,
+      });
+      console.log("init", address);
+    } catch (err) {
+      console.error("init", err);
+    }
   }
-  state = !state; //invert the state of this LED
-};
-
-//define all gpios as outputs
-for (var i = 0; i < 16; i++) {
-  mcp.pinMode(i, mcp.OUTPUT);
+  // address++;
+  // if (address >= 128) {
+  //   address = 0;
+  //   val = !val;
+  // }
 }
 
-setInterval(blink, 100); //blink all LED's with a delay of 100ms
+async function setMode() {
+  PIN = 0;
+  while (PIN < 16) {
+    try {
+      await mcp.pinMode(PIN, mcp.OUTPUT);
+      PIN++;
+    } catch (err) {
+      console.error("setMode", err);
+    }
+  }
+  PIN = 0;
+}
+
+async function blink() {
+  PIN = 0;
+  while (PIN < 16) {
+    try {
+      if (val) {
+        mcp.digitalWrite(PIN, mcp.HIGH);
+      } else {
+        mcp.digitalWrite(PIN, mcp.LOW);
+      }
+      PIN++;
+    } catch (err) {
+      console.error("blink", err);
+    }
+    await wait(INTERVAL);
+  }
+  console.log("blink", val);
+  PIN = 0;
+}
+
+function wait(delay) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, delay);
+  });
+}
