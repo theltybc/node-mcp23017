@@ -1,4 +1,4 @@
-const MCP23017 = require('node-mcp23017');
+const MCP23017 = require('../main.js');
 const INTERVAL = 100;
 
 let PIN = 0;
