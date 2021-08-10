@@ -2,7 +2,6 @@ const MCP23017 = require('../main.js');
 const INTERVAL = 100;
 
 let PIN = 0;
-let val = true;
 let address = 0x21;
 
 let mcp = null;
@@ -11,8 +10,7 @@ let mcp = null;
   open();
   await setMode();
   while (1) {
-    await blink();
-    val = !val;
+    await mirror();
   }
 })();
 
@@ -44,36 +42,34 @@ async function setMode() {
   PIN = 0;
   while (PIN < 16) {
     try {
-      await mcp.pinMode(PIN, mcp.OUTPUT);
+      await mcp.pinMode(PIN, PIN < 8 ? mcp.INPUT_PULLUP : mcp.OUTPUT);
       PIN++;
     } catch (err) {
-      console.error("setMode", err);
+      console.error("setMode", PIN, err);
     }
   }
   PIN = 0;
 }
 
-async function blink() {
+async function mirror() {
   PIN = 0;
-  while (PIN < 16) {
+  while (PIN < 8) {
     try {
-      if (val) {
-        await mcp.digitalWrite(PIN, mcp.HIGH);
-      } else {
-        await mcp.digitalWrite(PIN, mcp.LOW);
-      }
+      await mcp.digitalWrite(PIN + 8, await mcp.digitalRead(PIN) ? mcp.HIGH : mcp.LOW);
       PIN++;
     } catch (err) {
       console.error("blink", err);
     }
     await wait(INTERVAL);
   }
-  console.log("blink", val);
+  console.log("blink");
   PIN = 0;
 }
+
 
 function wait(delay) {
   return new Promise(function (resolve) {
     setTimeout(resolve, delay);
   });
 }
+
