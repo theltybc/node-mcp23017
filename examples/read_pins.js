@@ -56,14 +56,14 @@ async function read() {
   const state = [];
   while (PIN < 16) {
     try {
-      state.push(await mcp.digitalRead());
+      state.push(await mcp.digitalRead(PIN));
       PIN++;
     } catch (err) {
       console.error(err);
     }
     await wait(INTERVAL);
   }
-  console.log("read", state);
+  console.log("read", JSON.stringify(state));
   PIN = 0;
 }
 
